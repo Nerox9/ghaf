@@ -47,6 +47,16 @@
           mesonFlags = prevAttrs.mesonFlags ++ ["-Ddeprecated-color-management-colord=false"];
           depsBuildBuild = [pkgs.pkg-config];
         });
+      # TODO: Remove this override if/when the fix is upstreamed.
+      # Disabling keytar dependancy for element desktop. It is not cross-compilable.
+      element-desktop = prev.element-desktop.override {
+        useKeytar = false;
+      };
+      # TODO: Remove this override if/when the fix is upstreamed.
+      # Set pkg-config as the build platform pkg-config.
+      perl-modules = prev.perl-modules.overrideAttrs (prevAttrs: {
+        postPatch = [prevAttrs.postPatch] ++ ["substituteInPlace Makefile.PL --replace \"pkg-config\" \"\$PKG_CONFIG\""];
+      });
     })
   ];
 }
