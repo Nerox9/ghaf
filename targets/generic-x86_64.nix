@@ -22,12 +22,14 @@
             inherit self microvm netvm guivm;
           })
 
+          nixos-hardware.nixosModules.lenovo-thinkpad-t14
+
           {
             ghaf = {
               hardware.x86_64.common.enable = true;
               # Enable all the default UI applications
               profiles = {
-                applications.enable = true;
+                #applications.enable = true;
                 #TODO clean this up when the microvm is updated to latest
                 release.enable = variant == "release";
                 debug.enable = variant == "debug";
@@ -44,12 +46,14 @@
 
           {
             boot.kernelParams = [
-              "intel_iommu=on,igx_off,sm_on"
+              "nomodeset"
+              "intel_iommu=on"
               "iommu=pt"
 
               # TODO: Change per your device
               # Passthrough Intel WiFi card
-              "vfio-pci.ids=8086:a0f0"
+              "vfio-pci.ids=8086:a2f0,8086:9b41"
+              "vfio_iommu_type1.allow_unsafe_interrupts=1"
             ];
           }
         ]
@@ -96,11 +100,7 @@
             microvm.devices = [
               {
                 bus = "pci";
-                path = "0005:01:00.0";
-              }
-              {
-                bus = "pci";
-                path = "0005:01:00.1";
+                path = "0000:00:02.0";
               }
             ];
           }
@@ -116,7 +116,8 @@
 in {
   nixosConfigurations =
     builtins.listToAttrs (map (t: lib.nameValuePair t.name t.hostConfiguration) targets)
-    // builtins.listToAttrs (map (t: lib.nameValuePair t.netvm t.netvmConfiguration) targets);
+    // builtins.listToAttrs (map (t: lib.nameValuePair t.netvm t.netvmConfiguration) targets)
+    // builtins.listToAttrs (map (t: lib.nameValuePair t.guivm t.guivmConfiguration) targets);
   packages = {
     x86_64-linux =
       builtins.listToAttrs (map (t: lib.nameValuePair t.name t.package) targets);

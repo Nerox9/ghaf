@@ -4,7 +4,6 @@
   lib,
   microvm,
   system,
-  nixpkgs,
 }:
 lib.nixosSystem {
   inherit system;
@@ -13,6 +12,8 @@ lib.nixosSystem {
     [
       {
         ghaf = {
+          profiles.applications.enable = true;
+          #profiles.graphics.enable = true;
           users.accounts.enable = true;
           development = {
             ssh.daemon.enable = true;
@@ -31,14 +32,6 @@ lib.nixosSystem {
         # TODO: crosvm PCI passthrough does not currently work
         microvm.hypervisor = "qemu";
 
-        nixpkgs.overlays = [
-          (self: super: {
-            qemu_kvm = super.qemu_kvm.overrideAttrs (self: super: {
-              patches = super.patches ++ [./qemu-aarch-memory.patch];
-            });
-          })
-        ];
-
         networking = {
           enableIPv6 = false;
           interfaces.ethint0.useDHCP = false;
@@ -46,19 +39,12 @@ lib.nixosSystem {
           firewall.allowedUDPPorts = [67];
           useNetworkd = true;
         };
+      
 
-        environment.systemPackages = with pkgs; [
-        weston
-      ];
-
-        hardware.nvidia.modesetting.enable = true;
-        nixpkgs.config.allowUnfree = true;
-        services.xserver.videoDrivers = ["nvidia"];
-        hardware.nvidia.open = false;
-        hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.beta;
+        services.xserver.videoDrivers = ["intel"];
 
         boot.kernelParams = [
-          "pci=nomsi"
+          #"i915.force_probe=9b41"
         ];
 
         microvm.interfaces = [
@@ -71,18 +57,18 @@ lib.nixosSystem {
 
         networking.nat = {
           enable = true;
-          internalInterfaces = ["ethint0"];
+          internalInterfaces = ["ethint1"];
         };
 
         # Set internal network's interface name to ethint0
-        systemd.network.links."10-ethint0" = {
+        systemd.network.links."10-ethint1" = {
           matchConfig.PermanentMACAddress = "02:00:00:02:01:01";
-          linkConfig.Name = "ethint0";
+          linkConfig.Name = "ethint1";
         };
 
         systemd.network = {
           enable = true;
-          networks."10-ethint0" = {
+          networks."10-ethint1" = {
             matchConfig.MACAddress = "02:00:00:02:01:01";
             networkConfig.DHCPServer = true;
             dhcpServerConfig.ServerAddress = "192.168.200.1/24";

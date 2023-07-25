@@ -64,6 +64,8 @@ in {
         StandardOutput = "journal";
         StandardError = "journal";
         ExecStart = "${pkgs.weston}/bin/weston";
+        Restart="on-failure";
+        RestartSec="1";
         # Ivan N: I do not know if this is bug or feature of NixOS, but
         # when I add weston.ini file to environment.etc, the file ends up in
         # /etc/xdg directory on the filesystem, while NixOS uses
