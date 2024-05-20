@@ -7,6 +7,7 @@
   imports = [
     ./disko/flake-module.nix
     ./hardware/flake-module.nix
+    ./givc/flake-module.nix
   ];
 
   flake.nixosModules = {

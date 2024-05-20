@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 {
+  lib,
   pkgs,
   config,
   ...
@@ -114,6 +115,11 @@ in {
         "-device"
         "usb-host,vendorid=0x067b,productid=0x23a3"
       ];
+      ghaf.givc.appvm = {
+        enable = true;
+        name = lib.mkForce "element-vm";
+        applications = lib.mkForce ''{"element": "run-waypipe element-desktop --enable-features=UseOzonePlatform --ozone-platform=wayland"}'';
+      };
     }
   ];
   borderColor = "#337aff";

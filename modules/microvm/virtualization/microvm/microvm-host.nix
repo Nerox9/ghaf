@@ -30,5 +30,6 @@ in {
       withSerial = config.ghaf.profiles.debug.enable;
       withDebug = config.ghaf.profiles.debug.enable;
     };
+    ghaf.givc.host.enable = true;
   };
 }

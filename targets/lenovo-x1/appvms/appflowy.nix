@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 {
+  lib,
   pkgs,
   config,
   ...
@@ -15,6 +16,11 @@
     {
       hardware.opengl.enable = true;
       time.timeZone = config.time.timeZone;
+      ghaf.givc.appvm = {
+        enable = true;
+        name = lib.mkForce "appflowy-vm";
+        applications = lib.mkForce ''{"appflowy": "run-waypipe appflowy"}'';
+      };
     }
   ];
 }

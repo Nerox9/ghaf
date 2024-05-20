@@ -28,6 +28,7 @@
             withPolkit = true;
             withDebug = configHost.ghaf.profiles.debug.enable;
           };
+          givc.adminvm.enable = true;
         };
 
         system.stateVersion = lib.trivial.release;

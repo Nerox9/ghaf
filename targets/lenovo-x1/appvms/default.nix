@@ -7,14 +7,14 @@
   config,
   ...
 }: let
-  chromium = import ./chromium.nix {inherit pkgs;};
-  gala = import ./gala.nix {inherit pkgs lib config;};
-  zathura = import ./zathura.nix {inherit pkgs;};
-  element = import ./element.nix {inherit pkgs config;};
+  chromium = import ./chromium.nix {inherit lib pkgs config;};
+  gala = import ./gala.nix {inherit lib pkgs config;};
+  zathura = import ./zathura.nix {inherit lib pkgs config;};
+  element = import ./element.nix {inherit lib pkgs config;};
   includeAppflowy = pkgs.stdenv.isx86_64;
   appflowy =
     if includeAppflowy
-    then import ./appflowy.nix {inherit pkgs config;}
+    then import ./appflowy.nix {inherit lib pkgs config;}
     else {};
   appvms =
     [

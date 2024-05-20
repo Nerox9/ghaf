@@ -40,6 +40,7 @@
             withTimesyncd = true;
             withDebug = configHost.ghaf.profiles.debug.enable;
           };
+          givc.guivm.enable = true;
         };
 
         systemd.services."waypipe-ssh-keygen" = let

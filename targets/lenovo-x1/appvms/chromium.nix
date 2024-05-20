@@ -1,7 +1,12 @@
 # Copyright 2024 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 #
-{pkgs, ...}: let
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}: let
   xdgPdfPort = 1200;
 in {
   name = "chromium";
@@ -50,7 +55,14 @@ in {
       };
 
       time.timeZone = "Asia/Dubai";
-
+      ghaf.givc.appvm = {
+        enable = true;
+        name = lib.mkForce "chromium-vm";
+        applications = lib.mkForce ''{
+          "chromium": "run-waypipe chromium --enable-features=UseOzonePlatform --ozone-platform=wayland",
+          "chromium-demo": "run-waypipe chromium --enable-features=UseOzonePlatform --ozone-platform=wayland --user-data-dir=/home/${config.ghaf.users.accounts.user}/.config/chromium/Default --test-type --ignore-certificate-errors-spki-list=Bq49YmAq1CG6FuBzp8nsyRXumW7Dmkp7QQ/F82azxGU="
+        }'';
+      };
       microvm.qemu.extraArgs = [
         # Lenovo X1 integrated usb webcam
         "-device"

@@ -22,6 +22,12 @@
           self.nixosModules.host
           self.nixosModules.lanzaboote
           self.nixosModules.microvm
+<<<<<<< HEAD
+=======
+          self.nixosModules.disko-lenovo-x1-basic-v1
+          self.nixosModules.hw-lenovo-x1
+          self.nixosModules.givc-host
+>>>>>>> d035246 (GIVC PoC code base)
 
           ({
             pkgs,
@@ -100,14 +106,20 @@
                 microvm = {
                   netvm = {
                     enable = true;
-                    extraModules = import ./netvmExtraModules.nix {
-                      inherit lib pkgs microvm;
-                      configH = config;
-                    };
+                    extraModules = [
+                      self.nixosModules.givc-netvm
+                    ] ++
+                      (import ./netvmExtraModules.nix {
+                        inherit lib pkgs microvm;
+                        configH = config;
+                      });
                   };
 
                   adminvm = {
                     enable = true;
+                    extraModules = [
+                      self.nixosModules.givc-adminvm
+                    ];
                   };
 
                   idsvm = {
@@ -117,12 +129,15 @@
 
                   guivm = {
                     enable = true;
-                    extraModules =
+                    extraModules = [
+                      self.nixosModules.givc-guivm
+                    ] ++
                       # TODO convert this to an actual module
-                      import ./guivmExtraModules.nix {
-                        inherit lib pkgs microvm;
+                      (import ./guivmExtraModules.nix {
+                        inherit lib microvm;
+                        pkgs = pkgs.extend(self.overlays.givc-app);
                         configH = config;
-                      };
+                      });
                   };
 
                   audiovm = {
@@ -136,6 +151,9 @@
                   appvm = {
                     enable = true;
                     vms = import ./appvms/default.nix {inherit pkgs lib config;};
+                    extraModules = [
+                      self.nixosModules.givc-appvm
+                    ];
                   };
                 };
               };

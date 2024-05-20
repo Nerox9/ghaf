@@ -64,6 +64,11 @@
             };
           };
 
+          # Quick fix to allow linger (linger option in user def. currently doesn't work, e.g., bc mutable)
+          systemd.tmpfiles.rules = [
+            "f /var/lib/systemd/linger/${config.ghaf.users.accounts.user}"
+          ];
+
           # SSH is very picky about the file permissions and ownership and will
           # accept neither direct path inside /nix/store or symlink that points
           # there. Therefore we copy the file to /etc/ssh/get-auth-keys (by

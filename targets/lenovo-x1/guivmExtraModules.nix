@@ -49,6 +49,8 @@
           powerControl = pkgs.callPackage ../../packages/powercontrol {};
           powerControlIcons = pkgs.gnome.callPackage ../../packages/powercontrol/png-icons.nix {};
           privateSshKeyPath = configH.ghaf.security.sshKeys.sshKeyPath;
+          adminAddr = configH.ghaf.givc.adminConfig.addr;
+          adminPort = configH.ghaf.givc.adminConfig.port;
         in [
           {
             # The SPKI fingerprint is calculated like this:
@@ -57,32 +59,32 @@
             name = "chromium";
             path =
               if configH.ghaf.virtualization.microvm.idsvm.mitmproxy.enable
-              then "${pkgs.openssh}/bin/ssh -i ${privateSshKeyPath} -o StrictHostKeyChecking=no chromium-vm.ghaf run-waypipe chromium --enable-features=UseOzonePlatform --ozone-platform=wayland --user-data-dir=/home/${configH.ghaf.users.accounts.user}/.config/chromium/Default --ignore-certificate-errors-spki-list=Bq49YmAq1CG6FuBzp8nsyRXumW7Dmkp7QQ/F82azxGU="
-              else "${pkgs.openssh}/bin/ssh -i ${privateSshKeyPath} -o StrictHostKeyChecking=no chromium-vm.ghaf run-waypipe chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
+              then "${pkgs.givc-app}/bin/givc-app -name chromium-demo -ip ${adminAddr} -port ${adminPort}"
+              else "${pkgs.givc-app}/bin/givc-app -name chromium -ip ${adminAddr} -port ${adminPort}";
             icon = "${../../assets/icons/png/browser.png}";
           }
 
           {
             name = "gala";
-            path = "${pkgs.openssh}/bin/ssh -i ${privateSshKeyPath} -o StrictHostKeyChecking=no gala-vm.ghaf run-waypipe gala --enable-features=UseOzonePlatform --ozone-platform=wayland";
+            path = "${pkgs.givc-app}/bin/givc-app -name gala -ip ${adminAddr} -port ${adminPort}";
             icon = "${../../assets/icons/png/app.png}";
           }
 
           {
             name = "zathura";
-            path = "${pkgs.openssh}/bin/ssh -i ${privateSshKeyPath} -o StrictHostKeyChecking=no zathura-vm.ghaf run-waypipe zathura";
+            path = "${pkgs.givc-app}/bin/givc-app -name zathura -ip ${adminAddr} -port ${adminPort}";
             icon = "${../../assets/icons/png/pdf.png}";
           }
 
           {
             name = "element";
-            path = "${pkgs.openssh}/bin/ssh -i ${configH.ghaf.security.sshKeys.sshKeyPath} -o StrictHostKeyChecking=no element-vm.ghaf run-waypipe element-desktop --enable-features=UseOzonePlatform --ozone-platform=wayland";
+            path = "${pkgs.givc-app}/bin/givc-app -name element -ip ${adminAddr} -port ${adminPort}";
             icon = "${../../assets/icons/png/element.png}";
           }
 
           {
             name = "appflowy";
-            path = "${pkgs.openssh}/bin/ssh -i ${configH.ghaf.security.sshKeys.sshKeyPath} -o StrictHostKeyChecking=no appflowy-vm.ghaf run-waypipe appflowy";
+            path = "${pkgs.givc-app}/bin/givc-app -name element -ip ${adminAddr} -port ${adminPort}";
             icon = "${../../assets/icons/svg/appflowy.svg}";
           }
 
@@ -98,6 +100,7 @@
             icon = "${pkgs.networkmanagerapplet}/share/icons/hicolor/22x22/apps/nm-device-wwan.png";
           }
 
+<<<<<<< HEAD
           {
             name = "poweroff";
             path = "${powerControl.makePowerOffCommand {
@@ -115,6 +118,19 @@
             }}";
             icon = "${powerControlIcons}/${powerControlIcons.relativeRebootIconPath}";
           }
+=======
+      {
+        name = "poweroff";
+        path = "${pkgs.givc-app}/bin/givc-app -name poweroff -ip ${adminAddr} -port ${adminPort}";
+        icon = "${powerControlIcons}/${powerControlIcons.relativeShutdownIconPath}";
+      }
+
+      {
+        name = "reboot";
+        path = "${pkgs.givc-app}/bin/givc-app -name reboot -ip ${adminAddr} -port ${adminPort}";
+        icon = "${powerControlIcons}/${powerControlIcons.relativeRebootIconPath}";
+      }
+>>>>>>> d035246 (GIVC PoC code base)
 
           # Temporarly disabled as it doesn't work stable
           # {
