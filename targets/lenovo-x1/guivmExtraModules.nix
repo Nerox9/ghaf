@@ -49,8 +49,8 @@
           powerControl = pkgs.callPackage ../../packages/powercontrol {};
           powerControlIcons = pkgs.gnome.callPackage ../../packages/powercontrol/png-icons.nix {};
           privateSshKeyPath = configH.ghaf.security.sshKeys.sshKeyPath;
-          adminAddr = configH.ghaf.givc.adminConfig.addr;
-          adminPort = configH.ghaf.givc.adminConfig.port;
+          appStarterArgs = "-host admin-vm.ghaf -ip ${configH.ghaf.givc.adminConfig.addr} -port ${configH.ghaf.givc.adminConfig.port} -cert /etc/givc/gui-vm.ghaf-cert.pem -key /etc/givc/gui-vm.ghaf-key.pem";
+          # appStarterArgs = "-host admin-vm.ghaf -ip ${configH.ghaf.givc.adminConfig.addr} -port ${configH.ghaf.givc.adminConfig.port} -notls";
         in [
           {
             # The SPKI fingerprint is calculated like this:
@@ -59,32 +59,32 @@
             name = "chromium";
             path =
               if configH.ghaf.virtualization.microvm.idsvm.mitmproxy.enable
-              then "${pkgs.givc-app}/bin/givc-app -name chromium-demo -ip ${adminAddr} -port ${adminPort}"
-              else "${pkgs.givc-app}/bin/givc-app -name chromium -ip ${adminAddr} -port ${adminPort}";
+              then "${pkgs.givc-app}/bin/givc-app -name chromium-demo ${appStarterArgs}"
+              else "${pkgs.givc-app}/bin/givc-app -name chromium ${appStarterArgs}";
             icon = "${../../assets/icons/png/browser.png}";
           }
 
           {
             name = "gala";
-            path = "${pkgs.givc-app}/bin/givc-app -name gala -ip ${adminAddr} -port ${adminPort}";
+            path = "${pkgs.givc-app}/bin/givc-app -name gala ${appStarterArgs}";
             icon = "${../../assets/icons/png/app.png}";
           }
 
           {
             name = "zathura";
-            path = "${pkgs.givc-app}/bin/givc-app -name zathura -ip ${adminAddr} -port ${adminPort}";
+            path = "${pkgs.givc-app}/bin/givc-app -name zathura ${appStarterArgs}";
             icon = "${../../assets/icons/png/pdf.png}";
           }
 
           {
             name = "element";
-            path = "${pkgs.givc-app}/bin/givc-app -name element -ip ${adminAddr} -port ${adminPort}";
+            path = "${pkgs.givc-app}/bin/givc-app -name element ${appStarterArgs}";
             icon = "${../../assets/icons/png/element.png}";
           }
 
           {
             name = "appflowy";
-            path = "${pkgs.givc-app}/bin/givc-app -name element -ip ${adminAddr} -port ${adminPort}";
+            path = "${pkgs.givc-app}/bin/givc-app -name appflowy ${appStarterArgs}";
             icon = "${../../assets/icons/svg/appflowy.svg}";
           }
 
@@ -100,37 +100,17 @@
             icon = "${pkgs.networkmanagerapplet}/share/icons/hicolor/22x22/apps/nm-device-wwan.png";
           }
 
-<<<<<<< HEAD
           {
             name = "poweroff";
-            path = "${powerControl.makePowerOffCommand {
-              inherit hostAddress;
-              inherit privateSshKeyPath;
-            }}";
+            path = "${pkgs.givc-app}/bin/givc-app -name poweroff ${appStarterArgs}";
             icon = "${powerControlIcons}/${powerControlIcons.relativeShutdownIconPath}";
           }
 
           {
             name = "reboot";
-            path = "${powerControl.makeRebootCommand {
-              inherit hostAddress;
-              inherit privateSshKeyPath;
-            }}";
+            path = "${pkgs.givc-app}/bin/givc-app -name reboot ${appStarterArgs}";
             icon = "${powerControlIcons}/${powerControlIcons.relativeRebootIconPath}";
           }
-=======
-      {
-        name = "poweroff";
-        path = "${pkgs.givc-app}/bin/givc-app -name poweroff -ip ${adminAddr} -port ${adminPort}";
-        icon = "${powerControlIcons}/${powerControlIcons.relativeShutdownIconPath}";
-      }
-
-      {
-        name = "reboot";
-        path = "${pkgs.givc-app}/bin/givc-app -name reboot -ip ${adminAddr} -port ${adminPort}";
-        icon = "${powerControlIcons}/${powerControlIcons.relativeRebootIconPath}";
-      }
->>>>>>> d035246 (GIVC PoC code base)
 
           # Temporarly disabled as it doesn't work stable
           # {

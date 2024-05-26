@@ -22,12 +22,7 @@
           self.nixosModules.host
           self.nixosModules.lanzaboote
           self.nixosModules.microvm
-<<<<<<< HEAD
-=======
-          self.nixosModules.disko-lenovo-x1-basic-v1
-          self.nixosModules.hw-lenovo-x1
           self.nixosModules.givc-host
->>>>>>> d035246 (GIVC PoC code base)
 
           ({
             pkgs,

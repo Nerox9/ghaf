@@ -3,42 +3,45 @@
 # Temprorary script to generate keys and certificates for the modules.
 # This should be replaced with proper PKI infrastructure.
 
+# Params
+VALIDITY=3650
+
 # Create CA
-ca_dir="ca"
+ca_dir="ca.ghaf"
 mkdir -p $ca_dir
 openssl genpkey -algorithm ED25519 -out $ca_dir/ca-key.pem
-openssl req -x509 -new -key $ca_dir/ca-key.pem -out $ca_dir/ca-cert.pem -subj "/CN=MyCA"
+openssl req -x509 -new -key $ca_dir/ca-key.pem -out $ca_dir/ca-cert.pem -subj "/CN=GivcCA" -days $VALIDITY
 
-# Create key/cert based on IP and DNS
-sign_ip_dns(){
-    name=$1
-    ip=$2
-    mkdir -p $name
-    openssl genpkey -algorithm ED25519 -out $name/$name-key.pem
-    openssl req -new -key $name/$name-key.pem -out $name/$name-csr.pem -subj "/CN=${name}" -addext "subjectAltName=IP:${ip},DNS:${name}"
-    openssl x509 -req -in $name/$name-csr.pem -CA $ca_dir/ca-cert.pem -CAkey $ca_dir/ca-key.pem -CAcreateserial -out $name/$name-cert.pem -extfile <(printf "subjectAltName=IP:${ip},DNS:${name}")
-    rm $name/$name-csr.pem
-    cp $ca_dir/ca-cert.pem $name/
+# Create key/cert based on IP and/or DNS
+gen_cert_ip(){
+    name="$1"
+    ip1="$2"
+    alttext="subjectAltName=IP.1:${ip1},DNS.1:${name}"
+    mkdir -p "$name"
+    openssl genpkey -algorithm ED25519 -out "$name"/"$name"-key.pem
+    openssl req -new -key "$name"/"$name"-key.pem -out "$name"/"$name"-csr.pem -subj "/CN=${name}" -addext "$alttext"
+    openssl x509 -req -in "$name"/"$name"-csr.pem -CA $ca_dir/ca-cert.pem -CAkey $ca_dir/ca-key.pem -CAcreateserial -out "$name"/"$name"-cert.pem -extfile <(printf "%s" "$alttext") -days $VALIDITY
+    rm "$name"/"$name"-csr.pem
 }
 
-# Create key/cert based on DNS
-sign_dns(){
-    name=$1
-    mkdir -p $name
-    openssl genpkey -algorithm ED25519 -out $name/$name-key.pem
-    openssl req -new -key $name/$name-key.pem -out $name/$name-csr.pem -subj "/CN=${name}" -addext "subjectAltName=DNS:${name}"
-    openssl x509 -req -in $name/$name-csr.pem -CA $ca_dir/ca-cert.pem -CAkey $ca_dir/ca-key.pem -CAcreateserial -out $name/$name-cert.pem -extfile <(printf "subjectAltName=DNS:${name}")
-    rm $name/$name-csr.pem
-    cp $ca_dir/ca-cert.pem $name/
+gen_cert(){
+    name="$1"
+    ip1="$2"
+    alttext="subjectAltName=DNS.1:${name},DNS.2:*.${name}"
+    mkdir -p "$name"
+    openssl genpkey -algorithm ED25519 -out "$name"/"$name"-key.pem
+    openssl req -new -key "$name"/"$name"-key.pem -out "$name"/"$name"-csr.pem -subj "/CN=${name}"
+    openssl x509 -req -in "$name"/"$name"-csr.pem -CA $ca_dir/ca-cert.pem -CAkey $ca_dir/ca-key.pem -CAcreateserial -out "$name"/"$name"-cert.pem -extfile <(printf "%s" "$alttext") -days $VALIDITY
+    rm "$name"/"$name"-csr.pem
 }
 
 # Generate keys/certificates
-sign_ip_dns "net-vm.ghaf" "192.168.101.1"
-sign_ip_dns "ghaf-host" "192.168.101.2"
-sign_ip_dns "gui-vm.ghaf" "192.168.101.3"
-sign_ip_dns "admin-vm.ghaf" "192.168.101.10"
-sign_dns "chromium-vm.ghaf"
-sign_dns "element-vm.ghaf"
-sign_dns "zathura-vm.ghaf"
-sign_dns "appflowy-vm.ghaf"
-sign_dns "gala-vm.ghaf"
+gen_cert_ip "host.ghaf" "192.168.101.2"
+gen_cert_ip "admin-vm.ghaf" "192.168.101.10"
+gen_cert_ip "net-vm.ghaf" "192.168.101.1"
+gen_cert_ip "gui-vm.ghaf" "192.168.101.3"
+gen_cert_ip "element-vm.ghaf" "192.168.100.253"
+gen_cert "chromium-vm.ghaf"
+gen_cert "gala-vm.ghaf"
+gen_cert "zathura-vm.ghaf"
+gen_cert "appflowy-vm.ghaf"

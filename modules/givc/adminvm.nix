@@ -3,44 +3,40 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }: let
   cfg = config.ghaf.givc.adminvm;
-in
-  with lib; {
+  inherit (lib) mkOption mkIf types;
+in {
+  options.ghaf.givc.adminvm = {
+    enable = mkOption {
+      description = "Enable adminvm givc module.";
+      type = types.bool;
+      default = true;
+    };
+  };
 
-    options.ghaf.givc.adminvm = {
-      enable = mkOption {
-        description = "Enable adminvm givc module.";
-        type = types.bool;
-        default = true;
+  config = mkIf cfg.enable {
+    # Copy hardcoded key/cert as temporary solution for testing
+    environment.etc.givc.source = ./certs/admin-vm.ghaf;
+    security.pki.certificateFiles = [./certs/ca.ghaf/ca-cert.pem];
+
+    givc.admin = {
+      enable = true;
+      inherit (config.ghaf.givc.adminConfig) name;
+      inherit (config.ghaf.givc.adminConfig) addr;
+      inherit (config.ghaf.givc.adminConfig) port;
+      inherit (config.ghaf.givc.adminConfig) protocol;
+      services = [
+        "givc-host.service"
+        "givc-net-vm.service"
+        "givc-gui-vm.service"
+      ];
+      tls = {
+        caCertPath = "/etc/ssl/certs/ca-certificates.crt";
+        certPath = "/etc/givc/admin-vm.ghaf-cert.pem";
+        keyPath = "/etc/givc/admin-vm.ghaf-key.pem";
       };
     };
-
-    config = mkIf cfg.enable {
-
-      # Copy hardcoded key/cert as temporary solution for testing
-      environment.etc.givc.source = ./certs/admin-vm.ghaf;
-
-      givc.admin = {
-        enable = true;
-        addr = config.ghaf.givc.adminConfig.addr;
-        port = config.ghaf.givc.adminConfig.port;
-        protocol = config.ghaf.givc.adminConfig.protocol;
-        services = [
-          "givc-host.service"
-          "givc-net-vm.service"
-          "givc-gui-vm.service"
-        ];
-        tls = {
-          caCertPath = "/etc/givc/ca-cert.pem";
-          certPath = "/etc/givc/admin-vm.ghaf-cert.pem";
-          keyPath = "/etc/givc/admin-vm.ghaf-key.pem";
-        };
-      };
-
-    };
-  }
-
-
+  };
+}

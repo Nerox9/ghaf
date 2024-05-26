@@ -3,46 +3,42 @@
 {
   config,
   lib,
-  pkgs,
   givc,
   ...
 }: let
   cfg = config.ghaf.givc.host;
-in
-  with lib; {
-    options.ghaf.givc.host = {
-      enable = mkEnableOption "Enable host givc module.";
-    };
+  inherit (lib) mkEnableOption mkIf;
+in {
+  options.ghaf.givc.host = {
+    enable = mkEnableOption "Enable host givc module.";
+  };
 
-    config = mkIf cfg.enable {
+  config = mkIf cfg.enable {
+    # Copy hardcoded key/cert as temporary solution for testing
+    environment.etc.givc.source = ./certs/host.ghaf;
+    security.pki.certificateFiles = [./certs/ca.ghaf/ca-cert.pem];
 
-      # Copy hardcoded key/cert as temporary solution for testing
-      environment.etc .givc.source = ./certs/ghaf-host;
-
-      givc.host = {
-        enable = true;
-        addr = "192.168.101.2";
-        port = "9000";
-        services = [
-          "microvm@chromium-vm.service"
-          "microvm@gala-vm.service"
-          "microvm@zathura-vm.service"
-          "microvm@gui-vm.service"
-          "microvm@net-vm.service"
-          "microvm@admin-vm.service"
-          "poweroff.target"
-          "reboot.target"
-        ];
-        tls = {
-          caCertPath = "/etc/givc/ca-cert.pem";
-          certPath = "/etc/givc/ghaf-host-cert.pem";
-          keyPath = "/etc/givc/ghaf-host-key.pem";
-        };
-        admin = config.ghaf.givc.adminConfig;
+    givc.host = {
+      enable = true;
+      name = "host";
+      addr = "192.168.101.2";
+      port = "9000";
+      services = [
+        "microvm@chromium-vm.service"
+        "microvm@gala-vm.service"
+        "microvm@zathura-vm.service"
+        "microvm@gui-vm.service"
+        "microvm@net-vm.service"
+        "microvm@admin-vm.service"
+        "poweroff.target"
+        "reboot.target"
+      ];
+      tls = {
+        caCertPath = "/etc/ssl/certs/ca-certificates.crt";
+        certPath = "/etc/givc/host.ghaf-cert.pem";
+        keyPath = "/etc/givc/host.ghaf-key.pem";
       };
-
+      admin = config.ghaf.givc.adminConfig;
     };
-  }
-
-
-
+  };
+}
