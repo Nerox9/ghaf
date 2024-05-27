@@ -203,13 +203,13 @@
       "locked": {
         "lastModified": 1716744824,
         "narHash": "sha256-kIVtrFyCtuG1ISrbu6eC9yIeVFYS+68CPNXu0iZI27k=",
-        "owner": "mbssrc",
+        "owner": "tiiuae",
         "repo": "ghaf-givc",
         "rev": "bac5754ee02cf7355dce96ffa2bad13f8fbe07e9",
         "type": "github"
       },
       "original": {
-        "owner": "mbssrc",
+        "owner": "tiiuae",
         "repo": "ghaf-givc",
         "type": "github"
       }
