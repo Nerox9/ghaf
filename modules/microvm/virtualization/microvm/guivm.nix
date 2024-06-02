@@ -88,18 +88,27 @@
           vcpu = 2;
           mem = 2048;
           hypervisor = "qemu";
-          shares = [
-            {
-              tag = "rw-waypipe-ssh-public-key";
-              source = configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir;
-              mountPoint = configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir;
-            }
-            {
-              tag = "ro-store";
-              source = "/nix/store";
-              mountPoint = "/nix/.ro-store";
-            }
-          ];
+          shares =
+            [
+              {
+                tag = "rw-waypipe-ssh-public-key";
+                source = configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir;
+                mountPoint = configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir;
+              }
+              {
+                tag = "ro-store";
+                source = "/nix/store";
+                mountPoint = "/nix/.ro-store";
+              }
+            ]
+            ++ lib.optionals (config.ghaf.givc.enable && config.ghaf.givc.enableTls) [
+              {
+                tag = "givc";
+                source = "/etc/givc/${vmName}.ghaf";
+                mountPoint = "/tmp/givc";
+                proto = "virtiofs";
+              }
+            ];
           writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
           qemu = {

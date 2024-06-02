@@ -64,11 +64,6 @@
             };
           };
 
-          # Quick fix to allow linger (linger option in user def. currently doesn't work, e.g., bc mutable)
-          systemd.tmpfiles.rules = [
-            "f /var/lib/systemd/linger/${config.ghaf.users.accounts.user}"
-          ];
-
           # SSH is very picky about the file permissions and ownership and will
           # accept neither direct path inside /nix/store or symlink that points
           # there. Therefore we copy the file to /etc/ssh/get-auth-keys (by
@@ -91,18 +86,27 @@
             mem = vm.ramMb;
             vcpu = vm.cores;
             hypervisor = "qemu";
-            shares = [
-              {
-                tag = "waypipe-ssh-public-key";
-                source = configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir;
-                mountPoint = configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir;
-              }
-              {
-                tag = "ro-store";
-                source = "/nix/store";
-                mountPoint = "/nix/.ro-store";
-              }
-            ];
+            shares =
+              [
+                {
+                  tag = "waypipe-ssh-public-key";
+                  source = configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir;
+                  mountPoint = configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir;
+                }
+                {
+                  tag = "ro-store";
+                  source = "/nix/store";
+                  mountPoint = "/nix/.ro-store";
+                }
+              ]
+              ++ lib.optionals (config.ghaf.givc.enable && config.ghaf.givc.enableTls) [
+                {
+                  tag = "givc";
+                  source = "/etc/givc/${vmName}.ghaf";
+                  mountPoint = "/tmp/givc";
+                  proto = "virtiofs";
+                }
+              ];
             writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
 
             qemu = {
@@ -123,7 +127,6 @@
             };
           };
           fileSystems."${configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir}".options = ["ro"];
-
           imports = [../../../common];
         })
       ];

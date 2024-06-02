@@ -5,23 +5,23 @@
   lib,
   ...
 }: let
-  cfg = config.ghaf.givc.guivm;
+  cfg = config.ghaf.givc.audiovm;
   inherit (lib) mkOption mkIf types;
 in {
-  options.ghaf.givc.guivm = {
+  options.ghaf.givc.audiovm = {
     enable = mkOption {
-      description = "Enable guivm givc module.";
+      description = "Enable audiovm givc module.";
       type = types.bool;
       default = true;
     };
   };
 
   config = mkIf cfg.enable {
-    # Configure guivm service
+    # Configure audiovm service
     givc.sysvm = {
       enable = true;
-      name = "gui-vm";
-      addr = "192.168.101.3";
+      name = "audio-vm";
+      addr = "192.168.101.5";
       port = "9000";
       services = [
         "poweroff.target"
@@ -30,13 +30,13 @@ in {
       tls = {
         enable = config.ghaf.givc.enableTls;
         caCertPath = "/run/givc/ca-cert.pem";
-        certPath = "/run/givc/gui-vm.ghaf-cert.pem";
-        keyPath = "/run/givc/gui-vm.ghaf-key.pem";
+        certPath = "/run/givc/audio-vm.ghaf-cert.pem";
+        keyPath = "/run/givc/audio-vm.ghaf-key.pem";
       };
       admin = config.ghaf.givc.adminConfig;
     };
 
     # Copy TLS files and change permissions
-    systemd.services."givc-prep-${config.ghaf.users.accounts.user}".enable = lib.mkForce config.ghaf.givc.enableTls;
+    systemd.services."givc-prep-root".enable = lib.mkForce config.ghaf.givc.enableTls;
   };
 }

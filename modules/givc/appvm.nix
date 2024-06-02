@@ -24,10 +24,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # Copy hardcoded key/cert as temporary solution for testing
-    environment.etc.givc.source = ./certs + "/${cfg.name}.ghaf";
-    security.pki.certificateFiles = [./certs/ca.ghaf/ca-cert.pem];
-
+    # Configure appvm service
     givc.appvm = {
       enable = true;
       inherit (cfg) name;
@@ -35,11 +32,20 @@ in {
       addr = "dynamic";
       port = "9000";
       tls = {
-        caCertPath = "/etc/ssl/certs/ca-certificates.crt";
-        certPath = "/etc/givc/${cfg.name}.ghaf-cert.pem";
-        keyPath = "/etc/givc/${cfg.name}.ghaf-key.pem";
+        enable = config.ghaf.givc.enableTls;
+        caCertPath = "/run/givc/ca-cert.pem";
+        certPath = "/run/givc/${cfg.name}.ghaf-cert.pem";
+        keyPath = "/run/givc/${cfg.name}.ghaf-key.pem";
       };
       admin = config.ghaf.givc.adminConfig;
     };
+
+    # Copy TLS files and change permissions
+    systemd.services."givc-prep-${config.ghaf.users.accounts.user}".enable = lib.mkForce config.ghaf.givc.enableTls;
+
+    # Quick fix to allow linger (linger option in user def. currently doesn't work, e.g., bc mutable)
+    systemd.tmpfiles.rules = [
+      "f /var/lib/systemd/linger/${config.ghaf.users.accounts.user}"
+    ];
   };
 }

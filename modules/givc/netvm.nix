@@ -18,10 +18,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # Copy hardcoded key/cert as temporary solution for testing
-    environment.etc.givc.source = ./certs/net-vm.ghaf;
-    security.pki.certificateFiles = [./certs/ca.ghaf/ca-cert.pem];
-
+    # Configure netvm service
     givc.sysvm = {
       enable = true;
       name = "net-vm";
@@ -32,11 +29,15 @@ in {
         "reboot.target"
       ];
       tls = {
-        caCertPath = "/etc/ssl/certs/ca-certificates.crt";
-        certPath = "/etc/givc/net-vm.ghaf-cert.pem";
-        keyPath = "/etc/givc/net-vm.ghaf-key.pem";
+        enable = config.ghaf.givc.enableTls;
+        caCertPath = "/run/givc/ca-cert.pem";
+        certPath = "/run/givc/net-vm.ghaf-cert.pem";
+        keyPath = "/run/givc/net-vm.ghaf-key.pem";
       };
       admin = config.ghaf.givc.adminConfig;
     };
+
+    # Copy TLS files and change permissions
+    systemd.services."givc-prep-root".enable = lib.mkForce config.ghaf.givc.enableTls;
   };
 }

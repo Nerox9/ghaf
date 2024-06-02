@@ -112,6 +112,14 @@
                 source = configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir;
                 mountPoint = configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir;
               }
+            ]
+            ++ lib.optionals (config.ghaf.givc.enable && config.ghaf.givc.enableTls) [
+              {
+                tag = "givc";
+                source = "/etc/givc/${vmName}.ghaf";
+                mountPoint = "/tmp/givc";
+                proto = "virtiofs";
+              }
             ];
 
           writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
@@ -126,7 +134,7 @@
           };
         };
 
-        fileSystems = lib.mkIf isGuiVmEnabled {${configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir}.options = ["ro"];};
+        fileSystems."${configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir}".options = ["ro"];
 
         # SSH is very picky about to file permissions and ownership and will
         # accept neither direct path inside /nix/store or symlink that points

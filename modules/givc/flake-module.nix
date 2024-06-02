@@ -22,6 +22,11 @@
       ./common.nix
       ./netvm.nix
     ];
+    givc-audiovm.imports = [
+      inputs.givc.nixosModules.sysvm
+      ./common.nix
+      ./audiovm.nix
+    ];
     givc-appvm.imports = [
       inputs.givc.nixosModules.appvm
       ./common.nix

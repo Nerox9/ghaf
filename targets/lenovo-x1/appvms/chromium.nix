@@ -60,7 +60,7 @@ in {
         name = lib.mkForce "chromium-vm";
         applications = lib.mkForce ''          {
                     "chromium": "run-waypipe chromium --enable-features=UseOzonePlatform --ozone-platform=wayland",
-                    "chromium-demo": "run-waypipe chromium --enable-features=UseOzonePlatform --ozone-platform=wayland --user-data-dir=/home/${config.ghaf.users.accounts.user}/.config/chromium/Default --test-type --ignore-certificate-errors-spki-list=Bq49YmAq1CG6FuBzp8nsyRXumW7Dmkp7QQ/F82azxGU="
+                    "chromium-ids": "run-waypipe chromium --enable-features=UseOzonePlatform --ozone-platform=wayland --user-data-dir=/home/${config.ghaf.users.accounts.user}/.config/chromium/Default --test-type --ignore-certificate-errors-spki-list=Bq49YmAq1CG6FuBzp8nsyRXumW7Dmkp7QQ/F82azxGU="
                   }'';
       };
       microvm.qemu.extraArgs = [

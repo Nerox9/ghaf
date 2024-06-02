@@ -61,14 +61,23 @@
         microvm = {
           optimize.enable = true;
           hypervisor = "cloud-hypervisor";
-          shares = [
-            {
-              tag = "ro-store";
-              source = "/nix/store";
-              mountPoint = "/nix/.ro-store";
-              proto = "virtiofs";
-            }
-          ];
+          shares =
+            [
+              {
+                tag = "ro-store";
+                source = "/nix/store";
+                mountPoint = "/nix/.ro-store";
+                proto = "virtiofs";
+              }
+            ]
+            ++ lib.optionals (config.ghaf.givc.enable && config.ghaf.givc.enableTls) [
+              {
+                tag = "givc";
+                source = "/etc/givc/${vmName}.ghaf";
+                mountPoint = "/tmp/givc";
+                proto = "virtiofs";
+              }
+            ];
           writableStoreOverlay = lib.mkIf config.ghaf.development.debug.tools.enable "/nix/.rw-store";
         };
         imports = [../../../common];

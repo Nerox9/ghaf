@@ -17,10 +17,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # Copy hardcoded key/cert as temporary solution for testing
-    environment.etc.givc.source = ./certs/admin-vm.ghaf;
-    security.pki.certificateFiles = [./certs/ca.ghaf/ca-cert.pem];
-
+    # Configure admin service
     givc.admin = {
       enable = true;
       inherit (config.ghaf.givc.adminConfig) name;
@@ -28,15 +25,19 @@ in {
       inherit (config.ghaf.givc.adminConfig) port;
       inherit (config.ghaf.givc.adminConfig) protocol;
       services = [
-        "givc-host.service"
+        "givc-ghaf-host.service"
         "givc-net-vm.service"
         "givc-gui-vm.service"
       ];
       tls = {
-        caCertPath = "/etc/ssl/certs/ca-certificates.crt";
-        certPath = "/etc/givc/admin-vm.ghaf-cert.pem";
-        keyPath = "/etc/givc/admin-vm.ghaf-key.pem";
+        enable = config.ghaf.givc.enableTls;
+        caCertPath = "/run/givc/ca-cert.pem";
+        certPath = "/run/givc/${config.ghaf.givc.adminConfig.name}.ghaf-cert.pem";
+        keyPath = "/run/givc/${config.ghaf.givc.adminConfig.name}.ghaf-key.pem";
       };
     };
+
+    # Copy TLS files and change permissions
+    systemd.services."givc-prep-root".enable = lib.mkForce config.ghaf.givc.enableTls;
   };
 }

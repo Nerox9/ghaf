@@ -101,10 +101,11 @@
                 microvm = {
                   netvm = {
                     enable = true;
-                    extraModules = [
-                      self.nixosModules.givc-netvm
-                    ] ++
-                      (import ./netvmExtraModules.nix {
+                    extraModules =
+                      [
+                        self.nixosModules.givc-netvm
+                      ]
+                      ++ (import ./netvmExtraModules.nix {
                         inherit lib pkgs microvm;
                         configH = config;
                       });
@@ -124,23 +125,29 @@
 
                   guivm = {
                     enable = true;
-                    extraModules = [
-                      self.nixosModules.givc-guivm
-                    ] ++
+                    extraModules =
+                      [
+                        self.nixosModules.givc-guivm
+                      ]
+                      ++
                       # TODO convert this to an actual module
                       (import ./guivmExtraModules.nix {
                         inherit lib microvm;
-                        pkgs = pkgs.extend(self.overlays.givc-app);
+                        pkgs = pkgs.extend self.overlays.givc-app;
                         configH = config;
                       });
                   };
 
                   audiovm = {
                     enable = true;
-                    extraModules = import ./audiovmExtraModules.nix {
-                      inherit lib pkgs microvm;
-                      configH = config;
-                    };
+                    extraModules =
+                      [
+                        self.nixosModules.givc-audiovm
+                      ]
+                      ++ (import ./audiovmExtraModules.nix {
+                        inherit lib pkgs microvm;
+                        configH = config;
+                      });
                   };
 
                   appvm = {
