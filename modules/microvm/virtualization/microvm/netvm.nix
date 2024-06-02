@@ -134,7 +134,7 @@
           };
         };
 
-        fileSystems."${configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir}".options = ["ro"];
+        fileSystems = lib.mkIf isGuiVmEnabled {${configHost.ghaf.security.sshKeys.waypipeSshPublicKeyDir}.options = ["ro"];};
 
         # SSH is very picky about to file permissions and ownership and will
         # accept neither direct path inside /nix/store or symlink that points
