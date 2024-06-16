@@ -76,6 +76,48 @@
 
             disko.devices.disk = config.ghaf.hardware.definition.disks;
 
+            systemd.services."givc-ssh-keygen" = let
+              keygenScript = pkgs.writeShellScriptBin "givc-ssh-keygen" ''
+                set -xeuo pipefail
+                mkdir -p /run/givc-ssh
+                echo -en "\n\n\n" | ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -f /run/givc-ssh/id_ed25519 -C ""
+                chown ghaf:ghaf /run/givc-ssh/*
+                cp /run/givc-ssh/id_ed25519.pub /run/givc-ssh-public-key/id_ed25519.pub
+              '';
+            in {
+              enable = true;
+              description = "Generate SSH keys for GIVC";
+              path = [keygenScript];
+              wantedBy = ["multi-user.target"];
+              serviceConfig = {
+                Type = "oneshot";
+                RemainAfterExit = true;
+                StandardOutput = "journal";
+                StandardError = "journal";
+                ExecStart = "${keygenScript}/bin/givc-ssh-keygen";
+              };
+            };
+
+            # This directory needs to be created before any of the microvms start.
+            systemd.services."create-givc-ssh-public-key-directory" = let
+              script = pkgs.writeShellScriptBin "create-givc-ssh-public-key-directory" ''
+                mkdir -pv ${config.ghaf.security.sshKeys.givcSshPublicKeyDir}
+                chown -v microvm ${config.ghaf.security.sshKeys.givcSshPublicKeyDir}
+              '';
+            in {
+              enable = true;
+              description = "Create shared directory on host";
+              path = [];
+              wantedBy = ["microvms.target"];
+              serviceConfig = {
+                Type = "oneshot";
+                RemainAfterExit = true;
+                StandardOutput = "journal";
+                StandardError = "journal";
+                ExecStart = "${script}/bin/create-givc-ssh-public-key-directory";
+              };
+            };
+
             ghaf = {
               # variant type, turn on debug or release
               profiles = {

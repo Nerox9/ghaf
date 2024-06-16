@@ -8,6 +8,7 @@
   ...
 }: let
   cfg = config.ghaf.givc.host;
+  wifi-list = pkgs.callPackage ../../packages/wifi-list;
   inherit (lib) mkEnableOption mkIf;
 in {
   options.ghaf.givc.host = {
@@ -31,6 +32,9 @@ in {
         "poweroff.target"
         "reboot.target"
       ];
+      environment = {
+            wifi-list = "${wifi-list}/bin/wifi-list";
+      };
       tls = {
         enable = config.ghaf.givc.enableTls;
         caCertPath = "/etc/givc/ca.ghaf/ca-cert.pem";
