@@ -298,6 +298,12 @@ in
         path = "${pkgs.labwc}/bin/labwc --exit";
         icon = "${pkgs.icon-pack}/system-log-out.svg";
       }
+      {
+        name = "Notepad Next";
+        description = "Notepad Application";
+        path = "${pkgs.notepad-next}/bin/NotepadNext";
+        icon = "${pkgs.icon-pack}/NotepadNext.svg";
+      }
     ];
   };
 }
